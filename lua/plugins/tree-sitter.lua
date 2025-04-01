@@ -6,12 +6,12 @@ return {
 	build = ':TSUpdate',
 	config = function()
 		require('nvim-treesitter.configs').setup {
-			ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
+			ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash', 'swift' },
 
 			auto_install = true,
 
 			highlight = { enable = true },
-			indent = { enable = true },
+			indent = { enable = false },
 			incremental_selection = {
 				enable = true,
 				keymaps = {
