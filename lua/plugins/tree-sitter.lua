@@ -5,6 +5,9 @@ return {
 	},
 	build = ':TSUpdate',
 	config = function()
+		-- somehow curl doesn't work for install parsers on my machine
+		require("nvim-treesitter.install").prefer_git = true
+
 		require('nvim-treesitter.configs').setup {
 			ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash', 'swift' },
 
