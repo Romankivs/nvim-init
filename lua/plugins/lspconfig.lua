@@ -26,6 +26,13 @@ return {
 			dafny = {},
 		}
 
+		-- Remove default neovim lsp mappings
+		vim.keymap.del('n', 'grr')
+		vim.keymap.del('n', 'grn')
+		vim.keymap.del('n', 'gra')
+		vim.keymap.del('v', 'gra')
+		vim.keymap.del('n', 'gri')
+
 		local lspconfig = require("lspconfig")
 
 		for server, config in pairs(servers) do
@@ -47,12 +54,6 @@ return {
 				nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
 				nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
-				-- Remove default neovim lsp mappings
-				vim.keymap.del('n', 'grr')
-				vim.keymap.del('n', 'grn')
-				vim.keymap.del('n', 'gra')
-				vim.keymap.del('v', 'gra')
-				vim.keymap.del('n', 'gri')
 				nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
 				nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
