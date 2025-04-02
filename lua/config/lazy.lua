@@ -56,8 +56,6 @@ vim.o.tabstop = 4
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
-vim.o.termguicolors = true
-
 -- [[ Basic Keymaps ]]
 
 -- Keymaps for better default experience
