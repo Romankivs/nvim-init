@@ -7,48 +7,22 @@ return {
 		{ 'nvim-telescope/telescope.nvim' }
 	},
 	config = function()
-		local servers = {
-			clangd = {
-				cmd = {
-					"clangd",
-					"--header-insertion=never",
-				},
-			},
-			pyright = {},
-			rust_analyzer = {},
-			lua_ls = {
-				Lua = {
-					workspace = { checkThirdParty = false },
-					telemetry = { enable = false },
-					diagnostics = { disable = { 'missing-fields' } },
-				},
-			},
-			dafny = {},
-		}
-
 		-- Remove default neovim lsp mappings
 		vim.keymap.del('n', 'grr')
 		vim.keymap.del('n', 'grn')
 		vim.keymap.del('n', 'gra')
 		vim.keymap.del('v', 'gra')
 		vim.keymap.del('n', 'gri')
+		vim.keymap.del('n', 'grt')
 
-		local lspconfig = require("lspconfig")
-
-		for server, config in pairs(servers) do
-			config.on_attach = function(_, bufnr)
-				-- NOTE: Remember that lua is a real programming language, and as such it is possible
-				-- to define small helper and utility functions so you don't have to repeat yourself
-				-- many times.
-				--
-				-- In this case, we create a function that lets us more easily define mappings specific
-				-- for LSP related items. It sets the mode, buffer and description for us each time.
+		vim.api.nvim_create_autocmd('LspAttach', {
+			callback = function(args)
 				local nmap = function(keys, func, desc)
 					if desc then
 						desc = 'LSP: ' .. desc
 					end
 
-					vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+					vim.keymap.set('n', keys, func, { buffer = args.buf, desc = desc })
 				end
 
 				nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
@@ -70,11 +44,33 @@ return {
 				nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
 				-- Create a command `:Format` local to the LSP buffer
-				vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
+				vim.api.nvim_buf_create_user_command(args.buf, 'Format', function(_)
 					vim.lsp.buf.format()
 				end, { desc = 'Format current buffer with LSP' })
-			end
-			lspconfig[server].setup(config)
-		end
+			end,
+		})
+
+		vim.lsp.config('clangd', {
+			settings = {
+				['clangd'] = {
+					cmd = {
+						"clangd",
+						"--header-insertion=never",
+					},
+				},
+			},
+		})
+		vim.lsp.config('lua_ls', {
+			Lua = {
+				workspace = { checkThirdParty = false },
+				telemetry = { enable = false },
+				diagnostics = { disable = { 'missing-fields' } },
+			},
+		})
+
+		vim.lsp.enable('clangd')
+		vim.lsp.enable('lua_ls')
+		vim.lsp.enable('rust_analyzer')
+		vim.lsp.enable('pyright')
 	end
 }

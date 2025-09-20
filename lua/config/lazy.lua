@@ -46,6 +46,7 @@ vim.wo.signcolumn = 'yes'
 -- Decrease update time
 vim.o.updatetime = 200
 vim.o.timeoutlen = 30
+vim.o.ttimeoutlen = 0
 
 vim.o.scrolloff = 8
 vim.o.sidescrolloff = 8
@@ -71,7 +72,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 
 -- Make diagnostics appear as virtual lines for better visibility
 vim.diagnostic.config({
-  virtual_lines = true
+  virtual_lines = false
 })
 
 -- [[ Highlight on yank ]]
