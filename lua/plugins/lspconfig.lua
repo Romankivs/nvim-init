@@ -1,76 +1,49 @@
-return {
-	-- LSP Configuration & Plugins
-	'neovim/nvim-lspconfig',
-	dependencies = {
-		-- Useful status updates for LSP
-		{ 'j-hui/fidget.nvim',            opts = {} },
-		{ 'nvim-telescope/telescope.nvim' }
-	},
-	config = function()
-		-- Remove default neovim lsp mappings
-		vim.keymap.del('n', 'grr')
-		vim.keymap.del('n', 'grn')
-		vim.keymap.del('n', 'gra')
-		vim.keymap.del('v', 'gra')
-		vim.keymap.del('n', 'gri')
-		vim.keymap.del('n', 'grt')
+-- Remove 0.12 default LSP mappings — we define our own below
+vim.keymap.del('n', 'grr')
+vim.keymap.del('n', 'grn')
+vim.keymap.del('n', 'gra')
+vim.keymap.del('v', 'gra')
+vim.keymap.del('n', 'gri')
+vim.keymap.del('n', 'grt')
+vim.keymap.del('n', 'grx')
 
-		vim.api.nvim_create_autocmd('LspAttach', {
-			callback = function(args)
-				local nmap = function(keys, func, desc)
-					if desc then
-						desc = 'LSP: ' .. desc
-					end
+vim.api.nvim_create_autocmd('LspAttach', {
+  callback = function(args)
+    local nmap = function(keys, func, desc)
+      vim.keymap.set('n', keys, func, { buffer = args.buf, desc = 'LSP: ' .. desc })
+    end
+    local fzf = require('fzf-lua')
 
-					vim.keymap.set('n', keys, func, { buffer = args.buf, desc = desc })
-				end
+    -- Prefer fzf-lua pickers for navigation (shows results in a list)
+    nmap('gr',        fzf.lsp_references,          '[G]oto [R]eferences')
+    nmap('gd',        fzf.lsp_definitions,         '[G]oto [D]efinition')
+    nmap('gI',        fzf.lsp_implementations,     '[G]oto [I]mplementation')
+    nmap('<leader>D', fzf.lsp_typedefs,            'Type [D]efinition')
+    nmap('<leader>s', fzf.lsp_document_symbols,    '[D]ocument [S]ymbols')
+    nmap('<leader>S', fzf.lsp_workspace_symbols,   '[W]orkspace [S]ymbols')
 
-				nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-				nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+    -- Leader aliases (muscle memory)
+    nmap('<leader>rn', vim.lsp.buf.rename,      '[R]e[n]ame')
+    nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
-				nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+    vim.api.nvim_buf_create_user_command(args.buf, 'Format', function()
+      vim.lsp.buf.format()
+    end, { desc = 'Format current buffer with LSP' })
+  end,
+})
 
-				nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-				nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-				nmap('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-				nmap('<leader>s', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-				nmap('<leader>S', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Workspace [S]ymbols')
+vim.lsp.config('clangd', {
+  cmd = { 'clangd', '--header-insertion=never' },
+})
 
-				-- See `:help K` for why this keymap
-				nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-				nmap('<leader>K>', vim.lsp.buf.signature_help, 'Signature Documentation')
+vim.lsp.config('lua_ls', {
+  settings = {
+    Lua = {
+      workspace = { checkThirdParty = false },
+      telemetry = { enable = false },
+      diagnostics = { disable = { 'missing-fields' } },
+    },
+  },
+})
 
-				-- Lesser used LSP functionality
-				nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-
-				-- Create a command `:Format` local to the LSP buffer
-				vim.api.nvim_buf_create_user_command(args.buf, 'Format', function(_)
-					vim.lsp.buf.format()
-				end, { desc = 'Format current buffer with LSP' })
-			end,
-		})
-
-		vim.lsp.config('clangd', {
-			settings = {
-				['clangd'] = {
-					cmd = {
-						"clangd",
-						"--header-insertion=never",
-					},
-				},
-			},
-		})
-		vim.lsp.config('lua_ls', {
-			Lua = {
-				workspace = { checkThirdParty = false },
-				telemetry = { enable = false },
-				diagnostics = { disable = { 'missing-fields' } },
-			},
-		})
-
-		vim.lsp.enable('clangd')
-		vim.lsp.enable('lua_ls')
-		vim.lsp.enable('rust_analyzer')
-		vim.lsp.enable('pyright')
-	end
-}
+vim.lsp.enable({ 'clangd', 'lua_ls', 'rust_analyzer', 'pyright' })
